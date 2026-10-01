@@ -66,6 +66,22 @@ def evaluate_task(model, x_test, y_test):
     return steps.step_evaluate(model, x_test, y_test)
 
 
+@task(name="run-api")
+def run_api():
+    run(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "app:app",
+            "--host",
+            "0.0.0.0",  # nosec B104
+            "--port",
+            "8001",
+        ]
+    )
+
+
 # ---------- Flows ----------
 @flow(name="install")
 def install_flow():
@@ -94,6 +110,11 @@ def evaluate_flow():
     evaluate_task(model, x_test, y_test)
 
 
+@flow(name="api")
+def api_flow():
+    run_api()
+
+
 @flow(name="all")
 def all_flow():
     code_flow()
@@ -109,6 +130,7 @@ FLOWS = {
     "train": train_flow,
     "entrainement": train_flow,
     "evaluate": evaluate_flow,
+    "api": api_flow,
     "all": all_flow,
 }
 
